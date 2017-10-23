@@ -1,3 +1,6 @@
 [submodule "pokedex"]
 	path = pokedex
 	url = https://github.com/veekun/pokedex
+[submodule "pypkm"]
+	path = pypkm
+	url = https://github.com/ceol/pypkm.git
