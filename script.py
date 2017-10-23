@@ -1,6 +1,7 @@
 import sys
 import os
 import tkinter
+from tkinter import filedialog
 from tkinter.ttk import *
 
 
@@ -36,6 +37,12 @@ def main():
     UserNum.grid(column = 2, row=99)
     TestCommand = tkinter.Button(GUI, text = 'Test', width = 16,command = lambda: AddUsers(int(UserNumber.get())))
     TestCommand.grid(column=1, row=99)
+    import binascii
+    filename = 'test.dat'
+    with open(filedialog.askopenfilename(), 'rb') as f:
+        content = f.read()
+    print(binascii.hexlify(content))
     tkinter.mainloop()
+
 
 main()
