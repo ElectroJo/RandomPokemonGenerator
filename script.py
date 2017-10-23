@@ -103,3 +103,15 @@ def main():
 
 
 main()
+import requests
+with open(r'C:\Users\Joey\Downloads\_sunmoon_v6.1\PKHeX Gen 7\003 - Venusaur - E472AD2F84C5.pk7', 'rb') as f: r = requests.post('http://192.168.0.109:9000', files={r'003 - Venusaur - E472AD2F84C5.pk7': f})
+"""
+import binascii
+import requests
+
+example code to be later used for requests to 3ds
+with open("base.pk7", "rb") as old, open("penix.pk7", "wb") as new:
+    new.write(str.encode('PKSMOTA'))
+    new.write(old.read())
+with open('penix.pk7', 'rb') as f: r = requests.post('http://192.168.0.109:9000', files={'outfile.pk7': f})
+"""
