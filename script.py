@@ -1,5 +1,8 @@
+import sys
+import os
 import tkinter
 from tkinter.ttk import *
+
 
 GUI = tkinter.Tk()
 FrameList = []
