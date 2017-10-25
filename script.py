@@ -64,10 +64,17 @@ SeekLocations = {
 with open(r'pokedex\pokedex\data\csv\pokemon.csv', mode='r') as infile:
     reader = csv.reader(infile)
     mydict = {rows[0]:rows[1] for rows in reader}
+with open(r'pokedex\pokedex\data\csv\pokemon.csv', mode='r') as infile:
+    reader = csv.reader(infile)
+    isdefault = {rows[0]:rows[7] for rows in reader}
+with open(r'pokedex\pokedex\data\csv\pokemon.csv', mode='r') as infile:
+    reader = csv.reader(infile)
+    speicies = {rows[0]:rows[2] for rows in reader}
+
 
 
 class userGUI:
-    def __init__(self,UserNum,USERDGUI):
+    def __init__(self,UserNum,USERDGUI,isdefault):
         self.USERDGUI = USERDGUI
         if UserNum % 2 == 0:
             self.x = 2
@@ -108,9 +115,12 @@ class userGUI:
     def compileto3ds(self, number):
         self.number = number
         for count in range(self.number):
-            self.replacehex('PokemonNDexID',self.flipthehexorder(self.turninttohex(self.pokemomids.get(count),4)))
+            if str(isdefault.get(str(self.pokemomids.get(count)))) == '1':
+                self.replacehex('PokemonNDexID',self.flipthehexorder(self.turninttohex(self.pokemomids.get(count),4)))
+            else:
+
+                self.replacehex('PokemonNDexID',self.flipthehexorder(self.turninttohex(int(speicies.get(str(self.pokemomids.get(count)))),4)))
             self.replacehex('PID',self.flipthehexorder(self.turninttohex(self.pokemomPIDs.get(count),8)))
-#            self.replacehex('PID',(self.turninttohex(random.randrange(0,4294967295),8)))
             self.sendfilesto3ds()
 
     def turninttohex(self,numbers,width):
@@ -122,8 +132,10 @@ class userGUI:
             self.curent = self.curent.zfill(width)
             return self.curent
 
-
-
+#https://stackoverflow.com/questions/45415347/generate-random-integer-between-two-ranges
+    def random_of_ranges(self,*ranges):
+        self.all_ranges = sum(ranges, [])
+        return random.choice(self.all_ranges)
 
 
     def flipthehexorder(self,hexes):
@@ -186,7 +198,8 @@ class userGUI:
             self.NewNotebook.add(self.tabnum[counts],text="Pokemon"+str(counts+1))
             self.pokemonlable = tkinter.Label(self.PokeIDFrame[counts],textvariable=self.pokenum[counts])
             self.pokemonlable.grid(row=0,column=0)
-            self.pokemonnum = random.randint(1,802)
+            self.pokemonnum = 0+self.random_of_ranges(list(range(1, 803)), list(range(10001, 10147)))
+#            self.pokemonnum = random.randint(1,802)
             self.pokemomids[counts] = self.pokemonnum
             self.pokemomPIDs[counts] = random.randrange(0,4294967295)
             self.pokemonpid = tkinter.Label(self.PIDFRAME[counts],textvariable=self.pokepids[counts])
@@ -255,7 +268,7 @@ def AddUsers(Number,frame):
         USERFRAME = tkinter.Frame(GUI)
         USERFRAME.grid(row=97, padx=5)
         for Num in range(Number):
-            userGUI(Num+1,USERFRAME)
+            userGUI(Num+1,USERFRAME,isdefault)
 
 
 def printpokeid():
