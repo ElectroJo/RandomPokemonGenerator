@@ -98,8 +98,10 @@ class userGUI:
         self.dsipaddent = tkinter.Entry(self.userframe, textvariable=self.dsipadd)
         self.dsipaddent.grid(column = 0, row=101)
         self.pokenum = []
+        self.pokepids = []
         self.tabnum = []
         self.pokemomids = {}
+        self.pokemomPIDs = {}
 
 
 
@@ -107,7 +109,8 @@ class userGUI:
         self.number = number
         for count in range(self.number):
             self.replacehex('PokemonNDexID',self.flipthehexorder(self.turninttohex(self.pokemomids.get(count),4)))
-            self.replacehex('PID',(self.turninttohex(random.randrange(0,4294967295),8)))
+            self.replacehex('PID',self.flipthehexorder(self.turninttohex(self.pokemomPIDs.get(count),8)))
+#            self.replacehex('PID',(self.turninttohex(random.randrange(0,4294967295),8)))
             self.sendfilesto3ds()
 
     def turninttohex(self,numbers,width):
@@ -157,20 +160,41 @@ class userGUI:
             tabsdel.destroy()
         self.tabnum = []
         self.truepokenum = 0
+        self.pokemomPIDs = {}
+        self.PIDFRAME = []
+        self.PokeIDFrame = []
+
+    def ReRollIDs(self,counts,varr,types):
+        if types == "PID":
+            self.pokemomPIDs[counts] = random.randrange(0,4294967295)
+            varr.set("PID: "+str(self.pokemomPIDs[counts]))
 
     def pickpokemon(self,number):
         self.resetdicts()
         self.number = number
         for counts in range(self.number):
             self.tabnum.append(None)
+            self.PIDFRAME.append(None)
+            self.PokeIDFrame.append(None)
             self.pokenum.append(tkinter.StringVar())
+            self.pokepids.append(tkinter.StringVar())
             self.tabnum[counts] = tkinter.Frame(self.NewNotebook)
+            self.PokeIDFrame[counts] = tkinter.Frame(self.tabnum[counts])
+            self.PokeIDFrame[counts].grid()
+            self.PIDFRAME[counts] = tkinter.Frame(self.tabnum[counts])
+            self.PIDFRAME[counts].grid()
             self.NewNotebook.add(self.tabnum[counts],text="Pokemon"+str(counts+1))
-            pokemonlable = tkinter.Label(self.tabnum[counts],textvariable=self.pokenum[counts])
-            pokemonlable.grid()
+            self.pokemonlable = tkinter.Label(self.PokeIDFrame[counts],textvariable=self.pokenum[counts])
+            self.pokemonlable.grid(row=0,column=0)
             self.pokemonnum = random.randint(1,802)
             self.pokemomids[counts] = self.pokemonnum
-            self.pokenum[counts].set(mydict.get(str(self.pokemonnum)))
+            self.pokemomPIDs[counts] = random.randrange(0,4294967295)
+            self.pokemonpid = tkinter.Label(self.PIDFRAME[counts],textvariable=self.pokepids[counts])
+            self.pokemonpid.grid(row=0,column=1)
+            self.pokenum[counts].set(mydict.get(str(self.pokemonnum)).title())
+            self.pokepids[counts].set("PID: "+str(self.pokemomPIDs[counts]))
+            self.pokemonpidRoll = tkinter.Button(self.PIDFRAME[counts],text="ReRoll", command = lambda counts=counts, pokepids=self.pokepids[counts]:self.ReRollIDs(counts,pokepids,"PID"))
+            self.pokemonpidRoll.grid(row=0,column=2)
         self.truepokenum = number
 
 
