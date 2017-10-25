@@ -1,25 +1,74 @@
-import sys
-import os
-import requests
+import sys, os, requests, tkinter, binascii, csv, random, gc
 from multiprocessing import Queue
-import tkinter
 from tkinter import filedialog
 from tkinter.ttk import *
-import binascii
-import csv
-import random
 GUI = tkinter.Tk()
+DiceExchangeWindow = tkinter.Toplevel()
+DiceExchangeWindow.withdraw()
+DieImage = tkinter.PhotoImage(file=(r'Images\dice.png'))
+DieImage1 = tkinter.PhotoImage(file=(r'Images\dice1.png'))
+DieImage2 = tkinter.PhotoImage(file=(r'Images\dice2.png'))
+DieImage3 = tkinter.PhotoImage(file=(r'Images\dice3.png'))
+DieImage4 = tkinter.PhotoImage(file=(r'Images\dice4.png'))
+DieImage5 = tkinter.PhotoImage(file=(r'Images\dice5.png'))
+DieImage6 = tkinter.PhotoImage(file=(r'Images\dice6.png'))
 FrameList = []
+DiceEffect = tkinter.StringVar()
+DiceEffect.set("as")
+Effects = ["N/a","Evolve","Devolve","Reroll","Curse Reroll","Trade","Nothing"]
 SeekLocations = {
-    "PokemonNDexID" : 8,
-    "PID" : 24
+    "EncryptConst":     0,
+    "Sanity":           4,
+    "PokemonNDexID":    8,
+    "HeldItem":         10,
+    "TID":              12,
+    "SID":              14,
+    "XP":               16,
+    "Ability":          20,
+    "AbilityNum":       21,
+    "MarkValue":        22,
+    "PID":              24,
+    "Nature":           28,
+    "FaithGendAlt":     29,
+    "HPEV":             30,
+    "ATKEV":            31,
+    "DEFEV":            32,
+    "SPEEV":            33,
+    "SPAEV":            34,
+    "SPDEV":            35,
+    "NickNameL1":       64,
+    "NickNameL2":       64,
+    "NickNameL3":       66,
+    "NickNameL4":       68,
+    "NickNameL5":       70,
+    "NickNameL6":       72,
+    "NickNameL7":       74,
+    "NickNameL8":       76,
+    "NickNameL9":       78,
+    "NickNameL10":      80,
+    "NickNameL11":      82,
+    "NickNameL12":      84,
+    "Move1":            90,
+    "Move2":            92,
+    "Move3":            94,
+    "Move4":            96,
+    "Move1PP":          98,
+    "Move2PP":          99,
+    "Move3PP":          100,
+    "Move4PP":          101,
+    "NickNameBool":     119,
+    "Country":          224,
+    "ConsoleRegion":    226,
 }
 
 with open(r'pokedex\pokedex\data\csv\pokemon.csv', mode='r') as infile:
     reader = csv.reader(infile)
     mydict = {rows[0]:rows[1] for rows in reader}
+
+
 class userGUI:
-    def __init__(self,UserNum):
+    def __init__(self,UserNum,USERDGUI):
+        self.USERDGUI = USERDGUI
         if UserNum % 2 == 0:
             self.x = 2
             self.y = UserNum / 2
@@ -28,7 +77,7 @@ class userGUI:
             self.x = 1
             self.y = UserNum - 1
             self.y = self.y / 2
-        self.userframe = tkinter.Frame(GUI)
+        self.userframe = tkinter.Frame(self.USERDGUI,bd=3,relief="sunken",padx=3,pady=3)
         self.userframe.grid(column = int(self.x), row = int(self.y))
         FrameList.append(self.userframe)
         self.userLable = tkinter.Label(self.userframe, text = "user"+str(UserNum))
@@ -42,7 +91,7 @@ class userGUI:
         self.PokeNum = tkinter.Entry(self.userframe, textvariable=self.PokeNumber)
         self.PokeNum.grid(column = 0, row=99)
         self.truepokenum = 0
-        self.genfilesandsendto3ds = tkinter.Button(self.userframe, text="Sendto3ds", command = lambda:self.compileto3ds(self.truepokenum))
+        self.genfilesandsendto3ds = tkinter.Button(self.userframe, text="Sendto3ds",width = 16, command = lambda:self.compileto3ds(self.truepokenum))
         self.genfilesandsendto3ds.grid(row=100)
         self.dsipadd = tkinter.StringVar()
         self.dsipadd.set("IP ADDRESS")
@@ -51,6 +100,7 @@ class userGUI:
         self.pokenum = []
         self.tabnum = []
         self.pokemomids = {}
+
 
 
     def compileto3ds(self, number):
@@ -118,7 +168,7 @@ class userGUI:
             self.NewNotebook.add(self.tabnum[counts],text="Pokemon"+str(counts+1))
             pokemonlable = tkinter.Label(self.tabnum[counts],textvariable=self.pokenum[counts])
             pokemonlable.grid()
-            self.pokemonnum = random.randrange(1,802)
+            self.pokemonnum = random.randint(1,802)
             self.pokemomids[counts] = self.pokemonnum
             self.pokenum[counts].set(mydict.get(str(self.pokemonnum)))
         self.truepokenum = number
@@ -134,19 +184,71 @@ class userGUI:
         except:
             pass
 
+def RollDiceFunc(DiceWink,ChanceFrame):
+    Rand = random.randint(1,6)
+    if Rand == 1:
+        DiceWink.configure(image=DieImage1)
+    elif Rand == 2:
+        DiceWink.configure(image=DieImage2)
+    elif Rand == 3:
+        DiceWink.configure(image=DieImage3)
+    elif Rand == 4:
+        DiceWink.configure(image=DieImage4)
+    elif Rand == 5:
+        DiceWink.configure(image=DieImage5)
+    elif Rand == 6:
+        DiceWink.configure(image=DieImage6)
+    if DiceEffect.get() == "as":
+        YourEffect = tkinter.Button(ChanceFrame, textvariable=DiceEffect)
+        YourEffect.grid(row=2)
+    DiceEffect.set(Effects[Rand])
 
-def AddUsers(Number):
-    for Frames in FrameList:
-        Frames.destroy()
-    for Num in range(Number):
-        userGUI(Num+1)
+
+
+def AddUsers(Number,frame):
+    if Number <= 10:
+        try:
+            USERFRAME.destroy()
+        except:
+            ChanceFrame = tkinter.Frame(frame)
+            ChanceFrame.grid(row=99,column=1)
+            WordFrame = Frame(ChanceFrame)
+            WordFrame.grid(row=0)
+            RollDiceLable = Label(WordFrame, text="Roll Chance?")
+            RollDiceLable.grid(row=0)
+            DiceFrame = Frame(ChanceFrame)
+            DiceFrame.grid(row=1)
+            YouRolledL = Label(DiceFrame,text="You Rolled A:")
+            YouRolledL.grid(row=0, sticky=tkinter.N+tkinter.S)
+            LookLikeADice = tkinter.Frame(DiceFrame,bd=1, relief=tkinter.RAISED,width=500,height=50)
+            LookLikeADice.grid(row=0,column=1)
+            DiceWink = Label(LookLikeADice,image=DieImage)
+            DiceWink.grid()
+            RollDiceButton = Button(WordFrame, text="Roll", command = lambda DiceWink=DiceWink, ChanceFrame=ChanceFrame: RollDiceFunc(DiceWink,ChanceFrame))
+            RollDiceButton.grid(row=1)
+        for frame in FrameList:
+                frame.destroy()
+        USERFRAME = tkinter.Frame(GUI)
+        USERFRAME.grid(row=97, padx=5)
+        for Num in range(Number):
+            userGUI(Num+1,USERFRAME)
+
+
+def printpokeid():
+    for obj in gc.get_objects():
+        if isinstance(obj, userGUI):
+            print(obj.pokemomids)
 
 def main():
     UserNumber = tkinter.StringVar()
-    UserNum = tkinter.Entry(GUI, width=5, textvariable=UserNumber)
-    UserNum.grid(column = 2, row=99)
-    TestCommand = tkinter.Button(GUI, text = 'Add Users', width = 16,command = lambda: AddUsers(int(UserNumber.get())))
-    TestCommand.grid(column=1, row=99)
+    BottomStuffFrame = Frame(GUI)
+    BottomStuffFrame.grid(row=99)
+    UsercommandFrame = tkinter.Frame(BottomStuffFrame,bd=5,bg="lemon chiffon",relief=tkinter.RAISED)
+    UsercommandFrame.grid(row=99)
+    UserNum = tkinter.Entry(UsercommandFrame, width=5, textvariable=UserNumber)
+    UserNum.grid(column = 2, row=1,padx=5,pady=5)
+    UserCommand = tkinter.Button(UsercommandFrame, text = 'Add Users', width = 10,command = lambda BottomStuffFrame = BottomStuffFrame: AddUsers(int(UserNumber.get()),BottomStuffFrame))
+    UserCommand.grid(column=1,row=1,padx=5,pady=5)
     tkinter.mainloop()
 
 
