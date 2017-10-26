@@ -40,17 +40,17 @@ SeekLocations = {
     "SPAEV":            34,
     "SPDEV":            35,
     "NickNameL1":       64,
-    "NickNameL2":       64,
-    "NickNameL3":       66,
-    "NickNameL4":       68,
-    "NickNameL5":       70,
-    "NickNameL6":       72,
-    "NickNameL7":       74,
-    "NickNameL8":       76,
-    "NickNameL9":       78,
-    "NickNameL10":      80,
-    "NickNameL11":      82,
-    "NickNameL12":      84,
+    "NickNameL2":       66,
+    "NickNameL3":       68,
+    "NickNameL4":       70,
+    "NickNameL5":       72,
+    "NickNameL6":       74,
+    "NickNameL7":       76,
+    "NickNameL8":       78,
+    "NickNameL9":       80,
+    "NickNameL10":      82,
+    "NickNameL11":      84,
+    "NickNameL12":      86,
     "Move1":            90,
     "Move2":            92,
     "Move3":            94,
@@ -114,9 +114,13 @@ class userGUI:
         self.dsipaddent.grid(column = 0, row=101)
         self.pokenum = []
         self.pokepids = []
+        self.poketids = []
+        self.pokesids = []
         self.tabnum = []
         self.pokemomids = {}
         self.pokemomPIDs = {}
+        self.pokemomTIDs = {}
+        self.pokemomSIDs = {}
         self.GenderFormFath = 0
         self.gendervalue = {}
         self.PokeImage1 = {}
@@ -132,6 +136,8 @@ class userGUI:
                 if str(FormPK.get(str(self.pokemomids.get(count)))[0]) == "0":
                     self.GenderFormFath += 8*int(FormPK.get(str(self.pokemomids.get(count)))[2])
             self.replacehex('PID',self.flipthehexorder(self.turninttohex(self.pokemomPIDs.get(count),8)))
+            self.replacehex('TID',self.flipthehexorder(self.turninttohex(self.pokemomTIDs.get(count),4)))
+            self.replacehex('SID',self.flipthehexorder(self.turninttohex(self.pokemomSIDs.get(count),4)))
             self.GenderFormFath += (self.gendervalue.get(count)*2)
             self.replacehex('FaithGendAlt',self.flipthehexorder(self.turninttohex(self.GenderFormFath,2)))
             self.sendfilesto3ds()
@@ -187,7 +193,11 @@ class userGUI:
         self.tabnum = []
         self.truepokenum = 0
         self.pokemomPIDs = {}
+        self.pokemomTIDs = {}
+        self.pokemomSIDs = {}
         self.PIDFRAME = []
+        self.TIDFRAME = []
+        self.SIDFRAME = []
         self.PokeIDFrame = []
         self.gendervalue = {}
         self.PokeImage1 = {}
@@ -196,6 +206,12 @@ class userGUI:
         if types == "PID":
             self.pokemomPIDs[counts] = random.randrange(0,4294967295)
             varr.set("PID: "+str(self.pokemomPIDs[counts]))
+        elif types == "TID":
+            self.pokemomTIDs[counts] = random.randrange(0,65535)
+            varr.set("TID: "+str(self.pokemomTIDs[counts]))
+        elif types == "SID":
+            self.pokemomSIDs[counts] = random.randrange(0,65535)
+            varr.set("SID: "+str(self.pokemomSIDs[counts]))
 
     def checkvalchange(self,checkdict,cc):
         if checkdict == "gender":
@@ -212,29 +228,49 @@ class userGUI:
         for counts in range(self.number):
             self.tabnum.append(None)
             self.PIDFRAME.append(None)
+            self.TIDFRAME.append(None)
+            self.SIDFRAME.append(None)
             self.PokeIDFrame.append(None)
             self.pokenum.append(tkinter.StringVar())
             self.pokepids.append(tkinter.StringVar())
+            self.poketids.append(tkinter.StringVar())
+            self.pokesids.append(tkinter.StringVar())
             self.tabnum[counts] = tkinter.Frame(self.NewNotebook)
             self.PokeIDFrame[counts] = tkinter.Frame(self.tabnum[counts])
             self.PokeIDFrame[counts].grid()
             self.PIDFRAME[counts] = tkinter.Frame(self.tabnum[counts])
             self.PIDFRAME[counts].grid()
+            self.TIDFRAME[counts] = tkinter.Frame(self.tabnum[counts])
+            self.TIDFRAME[counts].grid()
+            self.SIDFRAME[counts] = tkinter.Frame(self.tabnum[counts])
+            self.SIDFRAME[counts].grid()
             self.NewNotebook.add(self.tabnum[counts],text="Pokemon"+str(counts+1))
             self.pokemonlable = tkinter.Label(self.PokeIDFrame[counts],textvariable=self.pokenum[counts])
             self.pokemonlable.grid(row=0,column=0)
             self.pokemonnum = 0+self.random_of_ranges(list(range(1, 803)), list(range(10001, 10147)))
             self.pokemomids[counts] = self.pokemonnum
             self.pokemomPIDs[counts] = random.randrange(0,4294967295)
+            self.pokemomTIDs[counts] = random.randrange(0,65535)
+            self.pokemomSIDs[counts] = random.randrange(0,65535)
             self.pokemonpid = tkinter.Label(self.PIDFRAME[counts],textvariable=self.pokepids[counts])
             self.pokemonpid.grid(row=0,column=1)
+            self.pokemontid = tkinter.Entry(self.TIDFRAME[counts],textvariable=self.poketids[counts])
+            self.pokemontid.grid(row=0,column=1)
+            self.pokemonsid = tkinter.Entry(self.SIDFRAME[counts],textvariable=self.pokesids[counts])
+            self.pokemonsid.grid(row=0,column=1)
             if str(FormPK.get(str(self.pokemonnum))[0]) == "0":
                 self.pokenum[counts].set(mydict.get(str(self.pokemonnum)).title())
             else:
                 self.pokenum[counts].set(mydict.get(str(speicies.get(str(self.pokemonnum)))).title())
             self.pokepids[counts].set("PID: "+str(self.pokemomPIDs[counts]))
+            self.poketids[counts].set("TID: "+str(self.pokemomTIDs[counts]))
+            self.pokesids[counts].set("SID: "+str(self.pokemomSIDs[counts]))
             self.pokemonpidRoll = tkinter.Button(self.PIDFRAME[counts],text="ReRoll", command = lambda counts=counts, pokepids=self.pokepids[counts]:self.ReRollIDs(counts,pokepids,"PID"))
             self.pokemonpidRoll.grid(row=0,column=2)
+            self.pokemontidRoll = tkinter.Button(self.TIDFRAME[counts],text="ReRoll", command = lambda counts=counts, poketids=self.poketids[counts]:self.ReRollIDs(counts,poketids,"TID"))
+            self.pokemontidRoll.grid(row=0,column=2)
+            self.pokemonsidRoll = tkinter.Button(self.SIDFRAME[counts],text="ReRoll", command = lambda counts=counts, pokesids=self.pokesids[counts]:self.ReRollIDs(counts,pokesids,"SID"))
+            self.pokemonsidRoll.grid(row=0,column=2)
             self.gendervalue[counts] = 0
             self.gendercheck = tkinter.Checkbutton(self.PIDFRAME[counts],text="Female?",command= lambda counts=counts:self.checkvalchange("gender",counts))
             self.gendercheck.grid(row=0,column=3)
