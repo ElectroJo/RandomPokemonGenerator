@@ -119,7 +119,7 @@ class userGUI:
         self.pokemomPIDs = {}
         self.GenderFormFath = 0
         self.gendervalue = {}
-
+        self.PokeImage1 = {}
 
 
     def compileto3ds(self, number):
@@ -190,6 +190,7 @@ class userGUI:
         self.PIDFRAME = []
         self.PokeIDFrame = []
         self.gendervalue = {}
+        self.PokeImage1 = {}
 
     def ReRollIDs(self,counts,varr,types):
         if types == "PID":
@@ -237,6 +238,13 @@ class userGUI:
             self.gendervalue[counts] = 0
             self.gendercheck = tkinter.Checkbutton(self.PIDFRAME[counts],text="Female?",command= lambda counts=counts:self.checkvalchange("gender",counts))
             self.gendercheck.grid(row=0,column=3)
+            if str(isdefault.get(str(self.pokemonnum))) == '1':
+                self.PokeImage1[counts] = tkinter.PhotoImage(file=(r"sprites\\sprites\\pokemon\\"+str(self.pokemonnum)+".png"))
+                self.PokeImage = Label(self.PIDFRAME[counts],image=self.PokeImage1[counts])
+            else:
+                self.PokeImage1[counts] = tkinter.PhotoImage(file=(r"sprites\\sprites\\pokemon\\"+str(speicies.get(str(self.pokemonnum)))+".png"))
+                self.PokeImage = Label(self.PIDFRAME[counts],image=self.PokeImage1[counts])
+            self.PokeImage.grid(row=0,column=4)
         self.truepokenum = number
 
 
