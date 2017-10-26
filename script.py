@@ -13,6 +13,9 @@ DieImage4 = tkinter.PhotoImage(file=(r'Images\dice4.png'))
 DieImage5 = tkinter.PhotoImage(file=(r'Images\dice5.png'))
 DieImage6 = tkinter.PhotoImage(file=(r'Images\dice6.png'))
 FrameList = []
+DiceFrameList = {}
+FrameList2 = []
+currentusernum = 0
 DiceEffect = tkinter.StringVar()
 DiceEffect.set("as")
 Effects = ["N/a","Evolve","Devolve","Reroll","Curse Reroll","Trade","Nothing"]
@@ -79,6 +82,7 @@ with open(r'pokedex\pokedex\data\csv\pokemon_forms.csv', mode='r') as infile:
 
 class userGUI:
     def __init__(self,UserNum,USERDGUI,isdefault):
+        self.NumberUser = UserNum
         self.USERDGUI = USERDGUI
         if UserNum % 2 == 0:
             self.x = 2
@@ -114,6 +118,7 @@ class userGUI:
         self.pokemomids = {}
         self.pokemomPIDs = {}
         self.GenderFormFath = 0
+        self.gendervalue = {}
 
 
 
@@ -127,6 +132,7 @@ class userGUI:
                 if str(FormPK.get(str(self.pokemomids.get(count)))[0]) == "0":
                     self.GenderFormFath += 8*int(FormPK.get(str(self.pokemomids.get(count)))[2])
             self.replacehex('PID',self.flipthehexorder(self.turninttohex(self.pokemomPIDs.get(count),8)))
+            self.GenderFormFath += (self.gendervalue.get(count)*2)
             self.replacehex('FaithGendAlt',self.flipthehexorder(self.turninttohex(self.GenderFormFath,2)))
             self.sendfilesto3ds()
             self.GenderFormFath = 0
@@ -183,11 +189,21 @@ class userGUI:
         self.pokemomPIDs = {}
         self.PIDFRAME = []
         self.PokeIDFrame = []
+        self.gendervalue = {}
 
     def ReRollIDs(self,counts,varr,types):
         if types == "PID":
             self.pokemomPIDs[counts] = random.randrange(0,4294967295)
             varr.set("PID: "+str(self.pokemomPIDs[counts]))
+
+    def checkvalchange(self,checkdict,cc):
+        if checkdict == "gender":
+            if self.gendervalue[cc] == 0:
+                self.gendervalue[cc] = 1
+            else:
+                self.gendervalue[cc] = 0
+        else:
+            print("error. no dict")
 
     def pickpokemon(self,number):
         self.resetdicts()
@@ -218,6 +234,9 @@ class userGUI:
             self.pokepids[counts].set("PID: "+str(self.pokemomPIDs[counts]))
             self.pokemonpidRoll = tkinter.Button(self.PIDFRAME[counts],text="ReRoll", command = lambda counts=counts, pokepids=self.pokepids[counts]:self.ReRollIDs(counts,pokepids,"PID"))
             self.pokemonpidRoll.grid(row=0,column=2)
+            self.gendervalue[counts] = 0
+            self.gendercheck = tkinter.Checkbutton(self.PIDFRAME[counts],text="Female?",command= lambda counts=counts:self.checkvalchange("gender",counts))
+            self.gendercheck.grid(row=0,column=3)
         self.truepokenum = number
 
 
@@ -246,9 +265,44 @@ def RollDiceFunc(DiceWink,ChanceFrame):
     elif Rand == 6:
         DiceWink.configure(image=DieImage6)
     if DiceEffect.get() == "as":
-        YourEffect = tkinter.Button(ChanceFrame, textvariable=DiceEffect)
+        YourEffect = tkinter.Button(ChanceFrame, textvariable=DiceEffect, command=lambda:RandomEvent())
         YourEffect.grid(row=2)
     DiceEffect.set(Effects[Rand])
+
+def resetdiceexchange(Framee):
+    Framee.destroy()
+    DiceExchangeWindow.withdraw()
+    for item in FrameList2:
+        item.destroy()
+
+def RandomEvent():
+    global whateverthisis
+    try:
+        whateverthisis.destroy()
+    except:
+        sdfdsf=3
+    DiceFrameList = {}
+    DiceExchangeWindow.deiconify()
+    DiceExchangeFrame = tkinter.Frame(DiceExchangeWindow)
+    whateverthisis = DiceExchangeFrame
+    DiceExchangeFrame.grid()
+    Canclebutton = tkinter.Button(DiceExchangeFrame,text="Cancel",command=lambda Framee=DiceExchangeFrame:resetdiceexchange(Framee))
+    Canclebutton.grid(row=99)
+    for obj in gc.get_objects():
+        if isinstance(obj, userGUI):
+            DiceFrameList[obj] = tkinter.Frame(DiceExchangeFrame, bd=1, relief=tkinter.RAISED,width=500,height=50)
+            UserLable = tkinter.Label(DiceFrameList[obj],text="User "+str(obj.NumberUser))
+            if obj.NumberUser % 2 == 0:
+                DiceFrameList[obj].grid(row=int((obj.NumberUser/2)-1),column=1)
+            else:
+                DiceFrameList[obj].grid(row=int((obj.NumberUser-1)/2),column=0)
+            UserLable.grid()
+            for items in obj.pokenum:
+                Pokebutton = tkinter.Button(DiceFrameList[obj],textvariable=items,width=15)
+                Pokebutton.grid()
+                FrameList2.append(Pokebutton)
+
+    DiceExchangeWindow.protocol("WM_DELETE_WINDOW", lambda Framee=DiceExchangeFrame:resetdiceexchange(Framee))
 
 
 
@@ -279,12 +333,8 @@ def AddUsers(Number,frame):
         USERFRAME.grid(row=97, padx=5)
         for Num in range(Number):
             userGUI(Num+1,USERFRAME,isdefault)
+    currentusernum = Number
 
-
-def printpokeid():
-    for obj in gc.get_objects():
-        if isinstance(obj, userGUI):
-            print(obj.pokemomids)
 
 def main():
     UserNumber = tkinter.StringVar()

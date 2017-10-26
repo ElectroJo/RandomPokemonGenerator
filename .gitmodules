@@ -1,3 +1,6 @@
 [submodule "pokedex"]
 	path = pokedex
 	url = https://github.com/veekun/pokedex
+[submodule "sprites"]
+	path = sprites
+	url = https://github.com/PokeAPI/sprites.git
