@@ -70,7 +70,11 @@ with open(r'pokedex\pokedex\data\csv\pokemon.csv', mode='r') as infile:
 with open(r'pokedex\pokedex\data\csv\pokemon.csv', mode='r') as infile:
     reader = csv.reader(infile)
     speicies = {rows[0]:rows[2] for rows in reader}
-
+with open(r'pokedex\pokedex\data\csv\pokemon_forms.csv', mode='r') as infile:
+    reader = csv.reader(infile)
+    FormPK = {}
+    for rows in reader:
+        FormPK[rows[3]] = [rows[6],rows[7],rows[8]]
 
 
 class userGUI:
@@ -109,6 +113,7 @@ class userGUI:
         self.tabnum = []
         self.pokemomids = {}
         self.pokemomPIDs = {}
+        self.GenderFormFath = 0
 
 
 
@@ -118,10 +123,13 @@ class userGUI:
             if str(isdefault.get(str(self.pokemomids.get(count)))) == '1':
                 self.replacehex('PokemonNDexID',self.flipthehexorder(self.turninttohex(self.pokemomids.get(count),4)))
             else:
-
                 self.replacehex('PokemonNDexID',self.flipthehexorder(self.turninttohex(int(speicies.get(str(self.pokemomids.get(count)))),4)))
+                if str(FormPK.get(str(self.pokemomids.get(count)))[0]) == "0":
+                    self.GenderFormFath += 8*int(FormPK.get(str(self.pokemomids.get(count)))[2])
             self.replacehex('PID',self.flipthehexorder(self.turninttohex(self.pokemomPIDs.get(count),8)))
+            self.replacehex('FaithGendAlt',self.flipthehexorder(self.turninttohex(self.GenderFormFath,2)))
             self.sendfilesto3ds()
+            self.GenderFormFath = 0
 
     def turninttohex(self,numbers,width):
         self.numbers = numbers
@@ -199,12 +207,14 @@ class userGUI:
             self.pokemonlable = tkinter.Label(self.PokeIDFrame[counts],textvariable=self.pokenum[counts])
             self.pokemonlable.grid(row=0,column=0)
             self.pokemonnum = 0+self.random_of_ranges(list(range(1, 803)), list(range(10001, 10147)))
-#            self.pokemonnum = random.randint(1,802)
             self.pokemomids[counts] = self.pokemonnum
             self.pokemomPIDs[counts] = random.randrange(0,4294967295)
             self.pokemonpid = tkinter.Label(self.PIDFRAME[counts],textvariable=self.pokepids[counts])
             self.pokemonpid.grid(row=0,column=1)
-            self.pokenum[counts].set(mydict.get(str(self.pokemonnum)).title())
+            if str(FormPK.get(str(self.pokemonnum))[0]) == "0":
+                self.pokenum[counts].set(mydict.get(str(self.pokemonnum)).title())
+            else:
+                self.pokenum[counts].set(mydict.get(str(speicies.get(str(self.pokemonnum)))).title())
             self.pokepids[counts].set("PID: "+str(self.pokemomPIDs[counts]))
             self.pokemonpidRoll = tkinter.Button(self.PIDFRAME[counts],text="ReRoll", command = lambda counts=counts, pokepids=self.pokepids[counts]:self.ReRollIDs(counts,pokepids,"PID"))
             self.pokemonpidRoll.grid(row=0,column=2)
