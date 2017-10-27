@@ -4,3 +4,6 @@
 [submodule "sprites"]
 	path = sprites
 	url = https://github.com/PokeAPI/sprites.git
+[submodule "PKSM-Tools"]
+	path = PKSM-Tools
+	url = https://github.com/BernardoGiordano/PKSM-Tools.git

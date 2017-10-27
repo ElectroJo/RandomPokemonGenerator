@@ -5,13 +5,16 @@ from tkinter.ttk import *
 GUI = tkinter.Tk()
 DiceExchangeWindow = tkinter.Toplevel()
 DiceExchangeWindow.withdraw()
-DieImage = tkinter.PhotoImage(file=(r'Images\dice.png'))
-DieImage1 = tkinter.PhotoImage(file=(r'Images\dice1.png'))
-DieImage2 = tkinter.PhotoImage(file=(r'Images\dice2.png'))
-DieImage3 = tkinter.PhotoImage(file=(r'Images\dice3.png'))
-DieImage4 = tkinter.PhotoImage(file=(r'Images\dice4.png'))
-DieImage5 = tkinter.PhotoImage(file=(r'Images\dice5.png'))
-DieImage6 = tkinter.PhotoImage(file=(r'Images\dice6.png'))
+DieImages = {
+    0:tkinter.PhotoImage(file=(r'Images\dice.png')),
+    1:tkinter.PhotoImage(file=(r'Images\dice1.png')),
+    2:tkinter.PhotoImage(file=(r'Images\dice2.png')),
+    3:tkinter.PhotoImage(file=(r'Images\dice3.png')),
+    4:tkinter.PhotoImage(file=(r'Images\dice4.png')),
+    5:tkinter.PhotoImage(file=(r'Images\dice5.png')),
+    6:tkinter.PhotoImage(file=(r'Images\dice6.png'))
+}
+
 FrameList = []
 DiceFrameList = {}
 FrameList2 = []
@@ -296,18 +299,7 @@ class userGUI:
 
 def RollDiceFunc(DiceWink,ChanceFrame):
     Rand = random.randint(1,6)
-    if Rand == 1:
-        DiceWink.configure(image=DieImage1)
-    elif Rand == 2:
-        DiceWink.configure(image=DieImage2)
-    elif Rand == 3:
-        DiceWink.configure(image=DieImage3)
-    elif Rand == 4:
-        DiceWink.configure(image=DieImage4)
-    elif Rand == 5:
-        DiceWink.configure(image=DieImage5)
-    elif Rand == 6:
-        DiceWink.configure(image=DieImage6)
+    DiceWink.configure(image=DieImages[Rand])
     if DiceEffect.get() == "as":
         YourEffect = tkinter.Button(ChanceFrame, textvariable=DiceEffect, command=lambda:RandomEvent())
         YourEffect.grid(row=2)
@@ -367,7 +359,7 @@ def AddUsers(Number,frame):
             YouRolledL.grid(row=0, sticky=tkinter.N+tkinter.S)
             LookLikeADice = tkinter.Frame(DiceFrame,bd=1, relief=tkinter.RAISED,width=500,height=50)
             LookLikeADice.grid(row=0,column=1)
-            DiceWink = Label(LookLikeADice,image=DieImage)
+            DiceWink = Label(LookLikeADice,image=DieImages[0])
             DiceWink.grid()
             RollDiceButton = Button(WordFrame, text="Roll", command = lambda DiceWink=DiceWink, ChanceFrame=ChanceFrame: RollDiceFunc(DiceWink,ChanceFrame))
             RollDiceButton.grid(row=1)
