@@ -299,7 +299,10 @@ class userGUI:
             new.write(binascii.unhexlify('07'))
             new.write(old.read())
             new.close()
-        print(subprocess.check_output(['serveLegality-CLI/serveLegality/serveLegality/bin/Debug/serveLegality.exe',Templates.get(3),Templates.get(4)]))
+        #https://stackoverflow.com/a/7006424
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        print(subprocess.check_output(['serveLegality-CLI/serveLegality/serveLegality/bin/Debug/serveLegality.exe',Templates.get(3),Templates.get(4)],startupinfo=si))
         try:
             with open(Templates.get(4), 'rb') as f: r = requests.post('http://'+self.dsipadd.get()+':9000', files={Templates.get(4): f})
         except:
