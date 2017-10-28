@@ -1,4 +1,4 @@
-import sys, os, requests, tkinter, binascii, csv, random, gc
+import sys, os, requests, tkinter, binascii, csv, random, gc, subprocess
 from multiprocessing import Queue
 from tkinter import filedialog
 from tkinter.ttk import *
@@ -13,6 +13,12 @@ DieImages = {
     4:tkinter.PhotoImage(file=(r'Images\dice4.png')),
     5:tkinter.PhotoImage(file=(r'Images\dice5.png')),
     6:tkinter.PhotoImage(file=(r'Images\dice6.png'))
+}
+Templates = {
+1:"Templates/base.pk7",
+2:"Templates/Newoutput.pk7",
+3:"Templates/outfile.pk7",
+4:"Templates/outfile2.pk7",
 }
 
 FrameList = []
@@ -179,10 +185,10 @@ class userGUI:
         return ''.join(map(str, self.hexlist))
 
     def replacehex(self,whattochange,hexvalues):
-        with open('Newoutput.pk7', 'rb') as f:
+        with open(Templates.get(2), 'rb') as f:
             content = f.read()
             f.close()
-        g = open('Newoutput.pk7','wb')
+        g = open(Templates.get(2),'wb')
         g.write(content)
         g.seek(SeekLocations.get(whattochange))
         hex_data=bytearray.fromhex(hexvalues)
@@ -288,12 +294,14 @@ class userGUI:
 
 
     def sendfilesto3ds(self):
-        with open("Newoutput.pk7", "rb") as old, open("outfile.pk7", "wb") as new:
-            new.write(str.encode('PKSMOTA'))
+        with open(Templates.get(2), "rb") as old, open(Templates.get(3), "wb") as new:
+            new.write(str.encode(r'PKSMOTA'))
+            new.write(binascii.unhexlify('07'))
             new.write(old.read())
             new.close()
+        print(subprocess.check_output(['serveLegality-CLI/serveLegality/serveLegality/bin/Debug/serveLegality.exe',Templates.get(3),Templates.get(4)]))
         try:
-            with open('outfile.pk7', 'rb') as f: r = requests.post('http://'+self.dsipadd.get()+':9000', files={'outfile.pk7': f})
+            with open(Templates.get(4), 'rb') as f: r = requests.post('http://'+self.dsipadd.get()+':9000', files={Templates.get(4): f})
         except:
             pass
 
