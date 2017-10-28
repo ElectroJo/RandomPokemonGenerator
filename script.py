@@ -2,6 +2,7 @@ import sys, os, requests, tkinter, binascii, csv, random, gc, subprocess
 from multiprocessing import Queue
 from tkinter import filedialog
 from tkinter.ttk import *
+from pathlib import Path
 GUI = tkinter.Tk()
 DiceExchangeWindow = tkinter.Toplevel()
 DiceExchangeWindow.withdraw()
@@ -131,8 +132,9 @@ class userGUI:
         self.pokemomTIDs = {}
         self.pokemomSIDs = {}
         self.GenderFormFath = 0
-        self.gendervalue = {}
         self.PokeImage1 = {}
+        genderbools = []
+        self.gendercheck=[]
 
 
     def compileto3ds(self, number):
@@ -147,7 +149,7 @@ class userGUI:
             self.replacehex('PID',self.flipthehexorder(self.turninttohex(self.pokemomPIDs.get(count),8)))
             self.replacehex('TID',self.flipthehexorder(self.turninttohex(self.pokemomTIDs.get(count),4)))
             self.replacehex('SID',self.flipthehexorder(self.turninttohex(self.pokemomSIDs.get(count),4)))
-            self.GenderFormFath += (self.gendervalue.get(count)*2)
+            self.GenderFormFath += (self.genderbools[count].get()*2)
             self.replacehex('FaithGendAlt',self.flipthehexorder(self.turninttohex(self.GenderFormFath,2)))
             self.sendfilesto3ds()
             self.GenderFormFath = 0
@@ -208,8 +210,10 @@ class userGUI:
         self.TIDFRAME = []
         self.SIDFRAME = []
         self.PokeIDFrame = []
-        self.gendervalue = {}
         self.PokeImage1 = {}
+        self.genderbools = []
+        self.gendercheck=[]
+
 
     def ReRollIDs(self,counts,varr,types):
         if types == "PID":
@@ -222,36 +226,23 @@ class userGUI:
             self.pokemomSIDs[counts] = random.randrange(0,65535)
             varr.set("SID: "+str(self.pokemomSIDs[counts]))
 
-    def checkvalchange(self,checkdict,cc):
-        if checkdict == "gender":
-            if self.gendervalue[cc] == 0:
-                self.gendervalue[cc] = 1
-            else:
-                self.gendervalue[cc] = 0
-        else:
-            print("error. no dict")
-
     def pickpokemon(self,number):
         self.resetdicts()
         self.number = number
         for counts in range(self.number):
-            self.tabnum.append(None)
-            self.PIDFRAME.append(None)
-            self.TIDFRAME.append(None)
-            self.SIDFRAME.append(None)
-            self.PokeIDFrame.append(None)
+            self.genderbools.append(tkinter.IntVar(value=0))
             self.pokenum.append(tkinter.StringVar())
             self.pokepids.append(tkinter.StringVar())
             self.poketids.append(tkinter.StringVar())
             self.pokesids.append(tkinter.StringVar())
-            self.tabnum[counts] = tkinter.Frame(self.NewNotebook)
-            self.PokeIDFrame[counts] = tkinter.Frame(self.tabnum[counts])
+            self.tabnum.append(tkinter.Frame(self.NewNotebook))
+            self.PokeIDFrame.append(tkinter.Frame(self.tabnum[counts]))
             self.PokeIDFrame[counts].grid()
-            self.PIDFRAME[counts] = tkinter.Frame(self.tabnum[counts])
+            self.PIDFRAME.append(tkinter.Frame(self.tabnum[counts]))
             self.PIDFRAME[counts].grid()
-            self.TIDFRAME[counts] = tkinter.Frame(self.tabnum[counts])
+            self.TIDFRAME.append(tkinter.Frame(self.tabnum[counts]))
             self.TIDFRAME[counts].grid()
-            self.SIDFRAME[counts] = tkinter.Frame(self.tabnum[counts])
+            self.SIDFRAME.append(tkinter.Frame(self.tabnum[counts]))
             self.SIDFRAME[counts].grid()
             self.NewNotebook.add(self.tabnum[counts],text="Pokemon"+str(counts+1))
             self.pokemonlable = tkinter.Label(self.PokeIDFrame[counts],textvariable=self.pokenum[counts])
@@ -280,9 +271,8 @@ class userGUI:
             self.pokemontidRoll.grid(row=0,column=2)
             self.pokemonsidRoll = tkinter.Button(self.SIDFRAME[counts],text="ReRoll", command = lambda counts=counts, pokesids=self.pokesids[counts]:self.ReRollIDs(counts,pokesids,"SID"))
             self.pokemonsidRoll.grid(row=0,column=2)
-            self.gendervalue[counts] = 0
-            self.gendercheck = tkinter.Checkbutton(self.PIDFRAME[counts],text="Female?",command= lambda counts=counts:self.checkvalchange("gender",counts))
-            self.gendercheck.grid(row=0,column=3)
+            self.gendercheck.append(tkinter.Checkbutton(self.PIDFRAME[counts],text="Feamle?",variable=self.genderbools[counts]))
+            self.gendercheck[counts].grid(row=0,column=3)
             if str(isdefault.get(str(self.pokemonnum))) == '1':
                 self.PokeImage1[counts] = tkinter.PhotoImage(file=(r"sprites\\sprites\\pokemon\\"+str(self.pokemonnum)+".png"))
                 self.PokeImage = Label(self.PIDFRAME[counts],image=self.PokeImage1[counts])
@@ -291,6 +281,7 @@ class userGUI:
                 self.PokeImage = Label(self.PIDFRAME[counts],image=self.PokeImage1[counts])
             self.PokeImage.grid(row=0,column=4)
         self.truepokenum = number
+
 
 
     def sendfilesto3ds(self):
