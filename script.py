@@ -133,8 +133,9 @@ class userGUI:
         self.pokemomSIDs = {}
         self.GenderFormFath = 0
         self.PokeImage1 = {}
-        genderbools = []
+        self.genderbools = []
         self.gendercheck=[]
+        self.PokeImage = {}
 
 
     def compileto3ds(self, number):
@@ -211,6 +212,7 @@ class userGUI:
         self.SIDFRAME = []
         self.PokeIDFrame = []
         self.PokeImage1 = {}
+        self.PokeImage = {}
         self.genderbools = []
         self.gendercheck=[]
 
@@ -225,6 +227,19 @@ class userGUI:
         elif types == "SID":
             self.pokemomSIDs[counts] = random.randrange(0,65535)
             varr.set("SID: "+str(self.pokemomSIDs[counts]))
+
+    def CheckPicGender(self,counts):
+        if self.genderbools[counts].get() == 0:
+            filedirpng = Path(r"sprites\\sprites\\pokemon\\"+str(speicies.get(str(self.pokemomids.get(counts))))+".png")
+            self.PokeImage1[counts]=tkinter.PhotoImage(file=filedirpng)
+
+        else:
+            filedirpng = Path(r"sprites\\sprites\\pokemon\\female\\"+str(speicies.get(str(self.pokemomids.get(counts))))+".png")
+            if filedirpng.is_file():
+                self.PokeImage1[counts]=tkinter.PhotoImage(file=filedirpng)
+        self.PokeImage[counts].configure(image=self.PokeImage1[counts])
+
+
 
     def pickpokemon(self,number):
         self.resetdicts()
@@ -271,15 +286,15 @@ class userGUI:
             self.pokemontidRoll.grid(row=0,column=2)
             self.pokemonsidRoll = tkinter.Button(self.SIDFRAME[counts],text="ReRoll", command = lambda counts=counts, pokesids=self.pokesids[counts]:self.ReRollIDs(counts,pokesids,"SID"))
             self.pokemonsidRoll.grid(row=0,column=2)
-            self.gendercheck.append(tkinter.Checkbutton(self.PIDFRAME[counts],text="Feamle?",variable=self.genderbools[counts]))
+            self.gendercheck.append(tkinter.Checkbutton(self.PIDFRAME[counts],text="Feamle?",variable=self.genderbools[counts],command=lambda counts=counts:self.CheckPicGender(counts)))
             self.gendercheck[counts].grid(row=0,column=3)
             if str(isdefault.get(str(self.pokemonnum))) == '1':
                 self.PokeImage1[counts] = tkinter.PhotoImage(file=(r"sprites\\sprites\\pokemon\\"+str(self.pokemonnum)+".png"))
-                self.PokeImage = Label(self.PIDFRAME[counts],image=self.PokeImage1[counts])
+                self.PokeImage[counts] = Label(self.PIDFRAME[counts],image=self.PokeImage1[counts])
             else:
                 self.PokeImage1[counts] = tkinter.PhotoImage(file=(r"sprites\\sprites\\pokemon\\"+str(speicies.get(str(self.pokemonnum)))+".png"))
-                self.PokeImage = Label(self.PIDFRAME[counts],image=self.PokeImage1[counts])
-            self.PokeImage.grid(row=0,column=4)
+                self.PokeImage[counts] = Label(self.PIDFRAME[counts],image=self.PokeImage1[counts])
+            self.PokeImage[counts].grid(row=0,column=4)
         self.truepokenum = number
 
 
