@@ -1,6 +1,7 @@
-import sys, os, requests, tkinter, binascii, csv, random, gc, subprocess
+import sys, os, requests, tkinter, binascii, csv, random, gc, subprocess, time
 from multiprocessing import Queue
 from tkinter import filedialog
+from tkinter import messagebox
 from tkinter.ttk import *
 from pathlib import Path
 GUI = tkinter.Tk()
@@ -21,6 +22,9 @@ Templates = {
 3:"Templates/outfile.pk7",
 4:"Templates/outfile2.pk7",
 }
+serveLegalityLog = open('serveLegality-CLI/serveLegality/serveLegality/bin/Debug/log.txt', "w")
+serveLegalityLog.write("")
+serveLegalityLog.close()
 
 FrameList = []
 DiceFrameList = {}
@@ -136,9 +140,11 @@ class userGUI:
         self.genderbools = []
         self.gendercheck=[]
         self.PokeImage = {}
+        self.IPFAIL = 0
 
 
     def compileto3ds(self, number):
+        self.IPFAIL = 0
         self.number = number
         for count in range(self.number):
             if str(isdefault.get(str(self.pokemomids.get(count)))) == '1':
@@ -300,20 +306,36 @@ class userGUI:
 
 
     def sendfilesto3ds(self):
-        with open(Templates.get(2), "rb") as old, open(Templates.get(3), "wb") as new:
-            new.write(str.encode(r'PKSMOTA'))
-            new.write(binascii.unhexlify('07'))
-            new.write(old.read())
-            new.close()
-        #https://stackoverflow.com/a/7006424
-        si = subprocess.STARTUPINFO()
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        print(subprocess.check_output(['serveLegality-CLI/serveLegality/serveLegality/bin/Debug/serveLegality.exe',Templates.get(3),Templates.get(4)],startupinfo=si))
-        try:
-            with open(Templates.get(4), 'rb') as f: r = requests.post('http://'+self.dsipadd.get()+':9000', files={Templates.get(4): f})
-        except:
+        if self.IPFAIL == 0:
+            with open(Templates.get(2), "rb") as old, open(Templates.get(3), "wb") as new:
+                new.write(str.encode(r'PKSMOTA'))
+                new.write(binascii.unhexlify('07'))
+                new.write(old.read())
+                new.close()
+            #https://stackoverflow.com/a/7006424
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            serveLegalityLog = open('serveLegality-CLI/serveLegality/serveLegality/bin/Debug/log.txt', "a")
+            try:
+                serveLegality = subprocess.check_output(['serveLegality-CLI/serveLegality/serveLegality/bin/Debug/serveLegality.exe',Templates.get(3),Templates.get(4)],startupinfo=si)
+                serveLegalityLog.write(serveLegality.decode(errors="ignore"))
+            except UnicodeDecodeError as lmao:
+                print('fugn')
+            serveLegalityLog.close()
+            while True:
+                try:
+                    with open(Templates.get(4), 'rb') as f: r = requests.post('http://'+self.dsipadd.get()+':9000', files={Templates.get(4): f}, timeout=5)
+                except requests.exceptions.ConnectionError as errs:
+                    if "Max retries exceeded with url" in str(errs):
+                        messagebox.showerror('ERROR','Unable to connect to 3DS\nRestart PKSM?\nWrong IP?')
+                        self.IPFAIL = 1
+                        break
+                    elif "Remote end closed connection without response" in str(errs):
+                        break
+                    elif "An existing connection was forcibly closed by the remote host" in str(errs):
+                        Errorisgus = "TRU"
+        else:
             pass
-
 def RollDiceFunc(DiceWink,ChanceFrame):
     Rand = random.randint(1,6)
     DiceWink.configure(image=DieImages[Rand])
