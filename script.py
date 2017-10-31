@@ -1,4 +1,4 @@
-import sys, os, requests, tkinter, binascii, csv, random, gc, subprocess, time
+import sys, os, requests, tkinter, binascii, csv, random, gc, subprocess, time, math
 from multiprocessing import Queue
 from tkinter import filedialog
 from tkinter import messagebox
@@ -27,12 +27,12 @@ serveLegalityLog.write("")
 serveLegalityLog.close()
 
 FrameList = []
-DiceFrameList = {}
-FrameList2 = []
+##DiceFrameList = {}
+##FrameList2 = []
 currentusernum = 0
 DiceEffect = tkinter.StringVar()
 DiceEffect.set("as")
-Effects = ["N/a","Evolve","Devolve","Reroll","Curse Reroll","Trade","Nothing"]
+Effects = ["N/a",["Evolve","Devolve","Reroll","Curse Reroll","Trade","Nothing","Evolve All","Choose that Pokemon","Sabotage","Choose your Fate"],[13,13,13,13,13,13,9,9,3,1]]
 SeekLocations = {
     "EncryptConst":     0,
     "Sanity":           4,
@@ -336,48 +336,130 @@ class userGUI:
                         Errorisgus = "TRU"
         else:
             pass
-def RollDiceFunc(DiceWink,ChanceFrame):
-    Rand = random.randint(1,6)
-    DiceWink.configure(image=DieImages[Rand])
-    if DiceEffect.get() == "as":
-        YourEffect = tkinter.Button(ChanceFrame, textvariable=DiceEffect, command=lambda:RandomEvent())
-        YourEffect.grid(row=2)
-    DiceEffect.set(Effects[Rand])
 
-def resetdiceexchange(Framee):
-    Framee.destroy()
+##def RollDiceFunc(DiceWink,ChanceFrame):
+##    Rand = random.randint(1,6)
+##    DiceWink.configure(image=DieImages[Rand])
+##    if DiceEffect.get() == "as":
+##        YourEffect = tkinter.Button(ChanceFrame, textvariable=DiceEffect, command=lambda:RandomEvent())
+##        YourEffect.grid(row=2)
+##    DiceEffect.set(Effects[Rand])
+RollDiceFuncItems = {"MainFrames":[],"HowManyEventsEntry":[],"HowManyEventsIntVar":[],"ComBoBoxes":[],"EventComboAndentryFrame":[],"OptionMenuVar":[],"PercentLable":[],"PercentENTRY":[],"PercentVAR":[]}
+DiceExchangeWindow.protocol("WM_DELETE_WINDOW", lambda:ResetDicewindow())
+def ResetDicewindow():
     DiceExchangeWindow.withdraw()
-    for item in FrameList2:
-        item.destroy()
+    DeleteDiceItems()
 
-def RandomEvent():
-    global whateverthisis
-    try:
-        whateverthisis.destroy()
-    except:
-        sdfdsf=3
-    DiceFrameList = {}
+def SetDefaultPercent(Outpt, Inpt):
+    Outpt.set(Effects[2][int(str([str([i for i,x in enumerate(Effects[1]) if x == Inpt])[1:-1]])[2:-2])])
+
+
+def DeleteDiceItems():
+    global RollDiceFuncItems
+    for items in RollDiceFuncItems["EventComboAndentryFrame"]:
+        items.destroy()
+    for items in RollDiceFuncItems["MainFrames"]:
+        items.destroy()
+    RollDiceFuncItems = {"MainFrames":[],"HowManyEventsEntry":[],"HowManyEventsIntVar":[],"ComBoBoxes":[],"EventComboAndentryFrame":[],"OptionMenuVar":[],"PercentLable":[],"PercentENTRY":[],"PercentVAR":[]}
+
+def GenerateRollFunction():
+    global RollDiceFuncItems
+    RollDiceFuncItems["ComBoBoxes"] = []
+    for items in RollDiceFuncItems["EventComboAndentryFrame"]:
+            items.destroy()
+    RollDiceFuncItems["EventComboAndentryFrame"] = []
+    RollDiceFuncItems["OptionMenuVar"] = []
+    RollDiceFuncItems["PercentLable"] = []
+    RollDiceFuncItems["PercentENTRY"] = []
+    RollDiceFuncItems["PercentVAR"] = []
+    for items in range(RollDiceFuncItems["HowManyEventsIntVar"][0].get()):
+        RollDiceFuncItems["EventComboAndentryFrame"].append(tkinter.Frame(RollDiceFuncItems["MainFrames"][1],bd=5,relief=tkinter.RAISED))
+        if items < 3:
+            if items == 0:
+                RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=0,column=items)
+            elif items == 1:
+                RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=0,column=items)
+            elif items == 2:
+                RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=0,column=items)
+        elif 6 > items >= 3:
+            RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=1,column=round(items-3))
+        elif 9 > items >= 6:
+            RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=2,column=round(items-6))
+        elif 11 > items >= 9:
+            RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=3,column=round(items-9))
+        RollDiceFuncItems["OptionMenuVar"].append(tkinter.StringVar())
+        RollDiceFuncItems["OptionMenuVar"][items].set("Event")
+        RollDiceFuncItems["PercentLable"].append(tkinter.Label(RollDiceFuncItems["EventComboAndentryFrame"][items], text="%:"))
+        RollDiceFuncItems["PercentLable"][items].grid(row=0,column=1)
+        RollDiceFuncItems["PercentVAR"].append(tkinter.StringVar())
+        RollDiceFuncItems["PercentENTRY"].append(tkinter.Entry(RollDiceFuncItems["EventComboAndentryFrame"][items], textvariable=RollDiceFuncItems["PercentVAR"][items]))
+        RollDiceFuncItems["PercentENTRY"][items].grid(row=0,column=2)
+        RollDiceFuncItems["ComBoBoxes"].append(tkinter.OptionMenu(RollDiceFuncItems["EventComboAndentryFrame"][items],RollDiceFuncItems["OptionMenuVar"][items],*Effects[1], command= lambda inpt=RollDiceFuncItems["OptionMenuVar"][items]:SetDefaultPercent(RollDiceFuncItems["PercentVAR"][items],inpt)))
+        RollDiceFuncItems["ComBoBoxes"][items].grid(row=0,column=0)
+
+def RollStuff():
+    global RollDiceFuncItems
+
+
+def RollDiceFunc():
+    global RollDiceFuncItems
+    DeleteDiceItems()
     DiceExchangeWindow.deiconify()
-    DiceExchangeFrame = tkinter.Frame(DiceExchangeWindow)
-    whateverthisis = DiceExchangeFrame
-    DiceExchangeFrame.grid()
-    Canclebutton = tkinter.Button(DiceExchangeFrame,text="Cancel",command=lambda Framee=DiceExchangeFrame:resetdiceexchange(Framee))
-    Canclebutton.grid(row=99)
-    for obj in gc.get_objects():
-        if isinstance(obj, userGUI):
-            DiceFrameList[obj] = tkinter.Frame(DiceExchangeFrame, bd=1, relief=tkinter.RAISED,width=500,height=50)
-            UserLable = tkinter.Label(DiceFrameList[obj],text="User "+str(obj.NumberUser))
-            if obj.NumberUser % 2 == 0:
-                DiceFrameList[obj].grid(row=int((obj.NumberUser/2)-1),column=1)
-            else:
-                DiceFrameList[obj].grid(row=int((obj.NumberUser-1)/2),column=0)
-            UserLable.grid()
-            for items in obj.pokenum:
-                Pokebutton = tkinter.Button(DiceFrameList[obj],textvariable=items,width=15)
-                Pokebutton.grid()
-                FrameList2.append(Pokebutton)
+    RollDiceFuncItems["MainFrames"].append(tkinter.Frame(DiceExchangeWindow,bd=5,relief=tkinter.RAISED))
+    RollDiceFuncItems["MainFrames"][0].grid(row=0,column=0)
+    RollDiceFuncItems["MainFrames"].append(tkinter.Frame(DiceExchangeWindow,bd=5,relief=tkinter.SUNKEN))
+    RollDiceFuncItems["MainFrames"][1].grid(row=1,column=0)
+    RollDiceFuncItems["MainFrames"].append(tkinter.Frame(DiceExchangeWindow,bd=5,relief=tkinter.SUNKEN))
+    RollDiceFuncItems["MainFrames"][2].grid(row=2,column=0)
+    RollDiceFuncItems["MainFrames"].append(tkinter.Frame(DiceExchangeWindow,bd=5,relief=tkinter.SUNKEN))
+    RollDiceFuncItems["MainFrames"][3].grid(row=3,column=0)
+    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Label(RollDiceFuncItems["MainFrames"][0], text="How Many Options?"))
+    RollDiceFuncItems["HowManyEventsEntry"][0].grid(row=0,column=0)
+    RollDiceFuncItems["HowManyEventsIntVar"].append(tkinter.IntVar())
+    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Entry(RollDiceFuncItems["MainFrames"][0], textvariable=RollDiceFuncItems["HowManyEventsIntVar"][0]))
+    RollDiceFuncItems["HowManyEventsEntry"][1].grid(row=0,column=1)
+    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][0], text="Set", command=lambda: GenerateRollFunction()))
+    RollDiceFuncItems["HowManyEventsEntry"][2].grid(row=0,column=2)
+    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][3], text="Roll", command=lambda: RollDice()))
+    RollDiceFuncItems["HowManyEventsEntry"][3].grid(row=0,column=0)
 
-    DiceExchangeWindow.protocol("WM_DELETE_WINDOW", lambda Framee=DiceExchangeFrame:resetdiceexchange(Framee))
+
+
+
+##def resetdiceexchange(Framee):
+##    Framee.destroy()
+##    DiceExchangeWindow.withdraw()
+##    for item in FrameList2:
+##        item.destroy()
+
+##def RandomEvent():
+##    global whateverthisis
+##    try:
+##        whateverthisis.destroy()
+##    except:
+##        sdfdsf=3
+##    DiceFrameList = {}
+##    DiceExchangeWindow.deiconify()
+##    DiceExchangeFrame = tkinter.Frame(DiceExchangeWindow)
+##    whateverthisis = DiceExchangeFrame
+##    DiceExchangeFrame.grid()
+##    Canclebutton = tkinter.Button(DiceExchangeFrame,text="Cancel",command=lambda Framee=DiceExchangeFrame:resetdiceexchange(Framee))
+##    Canclebutton.grid(row=99)
+##    for obj in gc.get_objects():
+##        if isinstance(obj, userGUI):
+##            DiceFrameList[obj] = tkinter.Frame(DiceExchangeFrame, bd=1, relief=tkinter.RAISED,width=500,height=50)
+##            UserLable = tkinter.Label(DiceFrameList[obj],text="User "+str(obj.NumberUser))
+##            if obj.NumberUser % 2 == 0:
+##                DiceFrameList[obj].grid(row=int((obj.NumberUser/2)-1),column=1)
+##            else:
+##                DiceFrameList[obj].grid(row=int((obj.NumberUser-1)/2),column=0)
+##            UserLable.grid()
+##            for items in obj.pokenum:
+##                Pokebutton = tkinter.Button(DiceFrameList[obj],textvariable=items,width=15)
+##                Pokebutton.grid()
+##                FrameList2.append(Pokebutton)
+##
+##    DiceExchangeWindow.protocol("WM_DELETE_WINDOW", lambda Framee=DiceExchangeFrame:resetdiceexchange(Framee))
 
 
 
@@ -390,17 +472,19 @@ def AddUsers(Number,frame):
             ChanceFrame.grid(row=99,column=1)
             WordFrame = Frame(ChanceFrame)
             WordFrame.grid(row=0)
-            RollDiceLable = Label(WordFrame, text="Roll Chance?")
-            RollDiceLable.grid(row=0)
-            DiceFrame = Frame(ChanceFrame)
-            DiceFrame.grid(row=1)
-            YouRolledL = Label(DiceFrame,text="You Rolled A:")
-            YouRolledL.grid(row=0, sticky=tkinter.N+tkinter.S)
-            LookLikeADice = tkinter.Frame(DiceFrame,bd=1, relief=tkinter.RAISED,width=500,height=50)
-            LookLikeADice.grid(row=0,column=1)
-            DiceWink = Label(LookLikeADice,image=DieImages[0])
-            DiceWink.grid()
-            RollDiceButton = Button(WordFrame, text="Roll", command = lambda DiceWink=DiceWink, ChanceFrame=ChanceFrame: RollDiceFunc(DiceWink,ChanceFrame))
+##            RollDiceLable = Label(WordFrame, text="Roll Chance?")
+##            RollDiceLable.grid(row=0)
+##            DiceFrame = Frame(ChanceFrame)
+##            DiceFrame.grid(row=1)
+##            YouRolledL = Label(DiceFrame,text="You Rolled A:")
+##            YouRolledL.grid(row=0, sticky=tkinter.N+tkinter.S)
+##            LookLikeADice = tkinter.Frame(DiceFrame,bd=1, relief=tkinter.RAISED,width=500,height=50)
+##            LookLikeADice.grid(row=0,column=1)
+##            DiceWink = Label(LookLikeADice,image=DieImages[0])
+##            DiceWink.grid()
+##            RollDiceButton = Button(WordFrame, text="Roll", command = lambda DiceWink=DiceWink, ChanceFrame=ChanceFrame: RollDiceFunc(DiceWink,ChanceFrame))
+##            RollDiceButton.grid(row=1)
+            RollDiceButton = Button(WordFrame, text="Play Chance", command = lambda: RollDiceFunc())
             RollDiceButton.grid(row=1)
         for frame in FrameList:
                 frame.destroy()
