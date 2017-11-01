@@ -394,7 +394,7 @@ def GenerateRollFunction():
         RollDiceFuncItems["PercentVAR"].append(tkinter.StringVar())
         RollDiceFuncItems["PercentENTRY"].append(tkinter.Entry(RollDiceFuncItems["EventComboAndentryFrame"][items], textvariable=RollDiceFuncItems["PercentVAR"][items]))
         RollDiceFuncItems["PercentENTRY"][items].grid(row=0,column=2)
-        RollDiceFuncItems["ComBoBoxes"].append(tkinter.OptionMenu(RollDiceFuncItems["EventComboAndentryFrame"][items],RollDiceFuncItems["OptionMenuVar"][items],*Effects[1], command= lambda inpt=RollDiceFuncItems["OptionMenuVar"][items]:SetDefaultPercent(RollDiceFuncItems["PercentVAR"][items],inpt)))
+        RollDiceFuncItems["ComBoBoxes"].append(tkinter.OptionMenu(RollDiceFuncItems["EventComboAndentryFrame"][items],RollDiceFuncItems["OptionMenuVar"][items],*Effects[1], command= lambda inpt=RollDiceFuncItems["OptionMenuVar"][items], items=items:SetDefaultPercent(RollDiceFuncItems["PercentVAR"][items],inpt)))
         RollDiceFuncItems["ComBoBoxes"][items].grid(row=0,column=0)
 
 def RollStuff():
@@ -420,8 +420,8 @@ def RollDiceFunc():
     RollDiceFuncItems["HowManyEventsEntry"][1].grid(row=0,column=1)
     RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][0], text="Set", command=lambda: GenerateRollFunction()))
     RollDiceFuncItems["HowManyEventsEntry"][2].grid(row=0,column=2)
-    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][3], text="Roll", command=lambda: RollDice()))
-    RollDiceFuncItems["HowManyEventsEntry"][3].grid(row=0,column=0)
+##    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][3], text="Roll", command=lambda: RollDice()))
+##    RollDiceFuncItems["HowManyEventsEntry"][3].grid(row=0,column=0)
 
 
 
