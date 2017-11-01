@@ -158,7 +158,7 @@ class userGUI:
             self.replacehex('SID',self.flipthehexorder(self.turninttohex(self.pokemomSIDs.get(count),4)))
             self.GenderFormFath += (self.genderbools[count].get()*2)
             self.replacehex('FaithGendAlt',self.flipthehexorder(self.turninttohex(self.GenderFormFath,2)))
-            self.sendfilesto3ds()
+            self.sendfilesto3ds(self.pokenum[count])
             self.GenderFormFath = 0
 
     def turninttohex(self,numbers,width):
@@ -305,7 +305,8 @@ class userGUI:
 
 
 
-    def sendfilesto3ds(self):
+    def sendfilesto3ds(self,pokemonname):
+##        messagebox.showerror("Error", "Repet message")
         if self.IPFAIL == 0:
             with open(Templates.get(2), "rb") as old, open(Templates.get(3), "wb") as new:
                 new.write(str.encode(r'PKSMOTA'))
@@ -333,6 +334,12 @@ class userGUI:
                     elif "Remote end closed connection without response" in str(errs):
                         break
                     elif "An existing connection was forcibly closed by the remote host" in str(errs):
+##                        self.Retry = messagebox.askyesno("Question", "Did "+pokemonname.get()+" Send?")
+##                        if self.Retry == True:
+##                            messagebox.showerror("Error", "Yes message")
+##                            break
+##                        else:
+##                            messagebox.showerror("Error", "No message")
                         Errorisgus = "TRU"
         else:
             pass

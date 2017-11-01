@@ -1,0 +1,1 @@
+python cxfreezebuild.py build
