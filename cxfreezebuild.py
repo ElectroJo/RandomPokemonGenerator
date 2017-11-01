@@ -20,10 +20,10 @@ options = {
 }
 
 setup(
-    name = "RandomPoke",
+    name = "Random Pokemon Generator and PSKM Sender",
     options = options,
     version = "0.07",
-    description = 'RandomPoke',
+    description = 'Generate Random Pokemon and send them directly to PKSM',
     executables = executables
 )
 import shutil, errno
