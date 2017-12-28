@@ -22,7 +22,7 @@ Templates = {
 3:"Templates/outfile.pk7",
 4:"Templates/outfile2.pk7",
 }
-serveLegalityLog = open('serveLegality-CLI/serveLegality/serveLegality/bin/Debug/log.txt', "w")
+serveLegalityLog = open('serveLegality-CLI/serveLegality/serveLegality/binaries/Debug/log.txt', "w")
 serveLegalityLog.write("")
 serveLegalityLog.close()
 
@@ -318,9 +318,9 @@ class userGUI:
             #https://stackoverflow.com/a/7006424
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            serveLegalityLog = open('serveLegality-CLI/serveLegality/serveLegality/bin/Debug/log.txt', "a")
+            serveLegalityLog = open('serveLegality-CLI/serveLegality/serveLegality/binaries/Debug/log.txt', "a")
             try:
-                serveLegality = subprocess.check_output(['serveLegality-CLI/serveLegality/serveLegality/bin/Debug/serveLegality.exe',Templates.get(3),Templates.get(4)],startupinfo=si)
+                serveLegality = subprocess.check_output(['serveLegality-CLI/serveLegality/serveLegality/binaries/Debug/serveLegality.exe',Templates.get(3),Templates.get(4)],startupinfo=si)
                 serveLegalityLog.write(serveLegality.decode(errors="ignore"))
             except UnicodeDecodeError as lmao:
                 print('fugn')
