@@ -92,7 +92,9 @@ with open(r'pokedex\pokedex\data\csv\pokemon_forms.csv', mode='r') as infile:
     FormPK = {}
     for rows in reader:
         FormPK[rows[3]] = [rows[6],rows[7],rows[8]]
-
+with open(r'pokedex\pokedex\data\csv\pokemon_species.csv', mode='r') as infile:
+    reader = csv.reader(infile)
+    Evolutions = {rows[0]:rows[3] for rows in reader}
 
 class userGUI:
     def __init__(self,UserNum,USERDGUI,isdefault):
@@ -357,8 +359,9 @@ def ResetDicewindow():
     DiceExchangeWindow.withdraw()
     DeleteDiceItems()
 
-def SetDefaultPercent(Outpt, Inpt):
-    Outpt.set(Effects[2][int(str([str([i for i,x in enumerate(Effects[1]) if x == Inpt])[1:-1]])[2:-2])])
+def SetDefaultPercent(Outpt, Inpt, Default="No"):
+    if Default == "No":
+        Outpt.set(Effects[2][int(str([str([i for i,x in enumerate(Effects[1]) if x == Inpt])[1:-1]])[2:-2])])
 
 
 def DeleteDiceItems():
@@ -367,10 +370,12 @@ def DeleteDiceItems():
         items.destroy()
     for items in RollDiceFuncItems["MainFrames"]:
         items.destroy()
-    RollDiceFuncItems = {"MainFrames":[],"HowManyEventsEntry":[],"HowManyEventsIntVar":[],"ComBoBoxes":[],"EventComboAndentryFrame":[],"OptionMenuVar":[],"PercentLable":[],"PercentENTRY":[],"PercentVAR":[]}
+    RollDiceFuncItems = {"MainFrames":[],"HowManyEventsEntry":[],"HowManyEventsIntVar":[],"ComBoBoxes":[],"EventComboAndentryFrame":[],"OptionMenuVar":[],"PercentLable":[],"PercentENTRY":[],"PercentVAR":[],"NoteTab":[],"NoteTabItems":[]}
 
-def GenerateRollFunction():
+def GenerateRollFunction(Default="No"):
     global RollDiceFuncItems
+    if Default == "Yes":
+        RollDiceFuncItems["HowManyEventsIntVar"][0].set(10)
     RollDiceFuncItems["ComBoBoxes"] = []
     for items in RollDiceFuncItems["EventComboAndentryFrame"]:
             items.destroy()
@@ -392,20 +397,54 @@ def GenerateRollFunction():
             RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=1,column=round(items-3))
         elif 9 > items >= 6:
             RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=2,column=round(items-6))
-        elif 11 > items >= 9:
+        elif 10 > items >= 9:
             RollDiceFuncItems["EventComboAndentryFrame"][items].grid(row=3,column=round(items-9))
         RollDiceFuncItems["OptionMenuVar"].append(tkinter.StringVar())
-        RollDiceFuncItems["OptionMenuVar"][items].set("Event")
+        if Default=="No":
+            RollDiceFuncItems["OptionMenuVar"][items].set("Event")
+        elif Default=="Yes":
+            RollDiceFuncItems["OptionMenuVar"][items].set(Effects[1][items])
         RollDiceFuncItems["PercentLable"].append(tkinter.Label(RollDiceFuncItems["EventComboAndentryFrame"][items], text="%:"))
         RollDiceFuncItems["PercentLable"][items].grid(row=0,column=1)
         RollDiceFuncItems["PercentVAR"].append(tkinter.StringVar())
         RollDiceFuncItems["PercentENTRY"].append(tkinter.Entry(RollDiceFuncItems["EventComboAndentryFrame"][items], textvariable=RollDiceFuncItems["PercentVAR"][items]))
         RollDiceFuncItems["PercentENTRY"][items].grid(row=0,column=2)
         RollDiceFuncItems["ComBoBoxes"].append(tkinter.OptionMenu(RollDiceFuncItems["EventComboAndentryFrame"][items],RollDiceFuncItems["OptionMenuVar"][items],*Effects[1], command= lambda inpt=RollDiceFuncItems["OptionMenuVar"][items], items=items:SetDefaultPercent(RollDiceFuncItems["PercentVAR"][items],inpt)))
+        if Default == "Yes":
+            RollDiceFuncItems["PercentVAR"][items].set(Effects[2][items])
         RollDiceFuncItems["ComBoBoxes"][items].grid(row=0,column=0)
 
 def RollStuff():
-    global RollDiceFuncItems
+    global RollDiceFuncItems, currentusernum
+    for items in RollDiceFuncItems["NoteTabItems"]:
+        items.destroy()
+    RollDiceFuncItems["NoteTabItems"] = []
+    TotalPercent = []
+    ButtonEvent = []
+    for itms in RollDiceFuncItems["PercentVAR"]:
+        try:
+            TotalPercent.append(int(itms.get()))
+        except:
+            TotalPercent.append(int(0))
+    for users in range(currentusernum):
+        RollDiceFuncItems["NoteTab"].append(tkinter.Frame(RollDiceFuncItems["HowManyEventsEntry"][4]))
+        RollDiceFuncItems["HowManyEventsEntry"][4].add(RollDiceFuncItems["NoteTab"][users],text="User"+str(users+1))
+        ButtonEvent.append(ReturnDice())
+        RollDiceFuncItems["NoteTabItems"].append(tkinter.Button(RollDiceFuncItems["NoteTab"][users],text=ButtonEvent[users], command=lambda:DoEvent(ButtonEvent[users])))
+        RollDiceFuncItems["NoteTabItems"][users].grid()
+
+def ButtonEvent(Event):
+    pass
+
+def ReturnDice():
+    RangeOfNum = []
+    for items in range(len(RollDiceFuncItems["OptionMenuVar"])):
+        if items > 9:
+            pass
+        else:
+            for count in range(int(RollDiceFuncItems["PercentVAR"][items].get())):
+                RangeOfNum.append(RollDiceFuncItems["OptionMenuVar"][items].get())
+    return RangeOfNum[random.randrange(len(RangeOfNum))]
 
 
 def RollDiceFunc():
@@ -427,8 +466,12 @@ def RollDiceFunc():
     RollDiceFuncItems["HowManyEventsEntry"][1].grid(row=0,column=1)
     RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][0], text="Set", command=lambda: GenerateRollFunction()))
     RollDiceFuncItems["HowManyEventsEntry"][2].grid(row=0,column=2)
-##    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][3], text="Roll", command=lambda: RollDice()))
-##    RollDiceFuncItems["HowManyEventsEntry"][3].grid(row=0,column=0)
+    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][2], text="Roll", command=lambda: RollStuff()))
+    RollDiceFuncItems["HowManyEventsEntry"][3].grid(row=0,column=0)
+    RollDiceFuncItems["HowManyEventsEntry"].append(Notebook(RollDiceFuncItems["MainFrames"][3]))
+    RollDiceFuncItems["HowManyEventsEntry"][4].grid(row=0,column=0)
+    RollDiceFuncItems["HowManyEventsEntry"].append(tkinter.Button(RollDiceFuncItems["MainFrames"][0], text="Default", command=lambda: GenerateRollFunction(Default="Yes")))
+    RollDiceFuncItems["HowManyEventsEntry"][5].grid(row=0,column=3)
 
 
 
@@ -499,7 +542,8 @@ def AddUsers(Number,frame):
         USERFRAME.grid(row=97, padx=5)
         for Num in range(Number):
             userGUI(Num+1,USERFRAME,isdefault)
-    currentusernum = Number
+    global currentusernum
+    currentusernum += Number
 
 
 def main():
