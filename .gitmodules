@@ -4,3 +4,6 @@
 [submodule "sprites"]
 	path = sprites
 	url = https://github.com/PokeAPI/sprites.git
+[submodule "serveLegality-CLI"]
+	path = serveLegality-CLI
+	url = https://github.com/ElectroJo/serveLegality-CLI.git
